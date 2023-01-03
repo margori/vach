@@ -1,0 +1,34 @@
+# Codeception Test Suite Configuration
+#
+# Suite for acceptance tests.
+# Perform tests in browser using the WebDriver or PhpBrowser.
+# If you need both WebDriver and PHPBrowser tests - create a separate suite.
+
+actor: AcceptanceTester
+# extensions:
+#   enabled:
+#     - Codeception\Extension\Recorder
+modules:
+  enabled:
+    - Asserts
+    - WebDriver
+    - Db
+    - Yii2
+    - MailDev
+  config:
+    WebDriver:
+      url: 'http://vach-web/web/'
+      browser: chrome
+      host: 'vach-selenium'
+      window_size: 1360x768
+      restart: true
+    Yii2:
+      configFile: 'config/test.php'
+      part: orm, email
+      transaction: true
+      cleanup: false
+      entryScript: index-test.php
+    MailDev:
+      url: 'http://vach-mail'
+      port: '1080'
+step_decorators: ~

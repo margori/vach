@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers;
+namespace app\modules\admin\controllers;
 
 use Yii;
 use yii\filters\AccessControl;
@@ -16,7 +16,6 @@ use app\models\Team;
 use app\models\TeamMember;
 use app\models\Company;
 use app\models\Person;
-use app\models\Team;
 
 class TeamController extends AdminBaseController
 {

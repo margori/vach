@@ -741,7 +741,7 @@ class Word
         self::i("@app/web/images/brands/08-plan.png");
         self::$section->addPageBreak();
 
-        self::$section->addTitle(Yii::t('report', 'Action Plan'), 1);
+        self::$section->addTitle(Yii::t('report', 'Conclusions - Stage 1'), 1);
         \PhpOffice\PhpWord\Shared\Html::addHtml(self::$section, self::$team->report->action_plan);
     }
 

@@ -19,7 +19,7 @@ class UserSearch extends User
             ->andFilterWhere(['like', 'phone', $this->phone])
             ->andFilterWhere(['like', 'is_administrator', $this->is_administrator]);
 
-        $query->orderBy('name, surname, username');
+        $query->orderBy('email');
 
         return $query;
     }

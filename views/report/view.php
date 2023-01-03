@@ -180,7 +180,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <?= $team->report->summary ?>
         </p>
         <h3>
-            <?= Yii::t('report', 'Action Plan'); ?>
+            <?= Yii::t('report', 'Conclusions - Stage 1'); ?>
             <?=
             Html::a(\Yii::t('app', 'Edit'), Url::to(['report/action-plan', 'id' => $team->id]), [
                 'id' => 'action-plan', 'class' => 'btn ' . (empty($team->report->action_plan) ? 'btn-success' : 'btn-default')

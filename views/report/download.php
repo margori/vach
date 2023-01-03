@@ -66,7 +66,7 @@ $this->title = Yii::t('report', 'Report');
                 <li><?= Yii::t('report', 'Group and Organizational Analysis') ?></li>
                 <li><?= Yii::t('report', 'Individual Analysis') ?></li>
                 <li><?= Yii::t('report', 'Summary') ?></li>
-                <li><?= Yii::t('report', 'Action Plan') ?></li>
+                <li><?= Yii::t('report', 'Conclusions - Stage 1') ?></li>
             </ol>
         </h3>
     </div>
@@ -253,7 +253,7 @@ $this->title = Yii::t('report', 'Report');
     <div style="page-break-after: always"> </div>
     <div class="col-lg-12">
         <h2>
-            <?= Yii::t('report', 'Action Plan') ?>
+            <?= Yii::t('report', 'Conclusions - Stage 1') ?>
         </h2>
         <div id="view-introduction">
             <?= $team->report->action_plan ?>

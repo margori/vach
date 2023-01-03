@@ -1,63 +1,63 @@
 version: '3.6'
 services:
-    vach:
-        container_name: vach-web
-        image: vach-web
-        build:
-            context: .
-            dockerfile: Dockerfile-web
-        volumes:
-            - ../.:/var/www/html
-        ports:
-            - "10180:80"
-        networks:
-            - vach-net
-        depends_on:
-            - vach-data
+  vach:
+    container_name: vach-web
+    image: vach-web
+    build:
+      context: .
+      dockerfile: Dockerfile-web
+    volumes:
+      - ../.:/var/www/html
+    ports:
+      - '10180:80'
+    networks:
+      - vach-net
+    depends_on:
+      - vach-data
 
-    vach-data:
-        container_name: vach-data
-        image: mysql:5.7
-        tmpfs: /var/lib/mysql
-        environment:
-            MYSQL_ROOT_PASSWORD: 'secret'
-            MYSQL_DATABASE: 'vach_test'
-        ports:
-            - "10183:3306"
-        networks:
-            - vach-net
+  vach-data:
+    container_name: vach-data
+    image: mysql:5.7
+    tmpfs: /var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 'secret'
+      MYSQL_DATABASE: 'vach_test'
+    ports:
+      - '10183:3306'
+    networks:
+      - vach-net
 
-    vach-selenium:
-        container_name: vach-selenium
-        image: selenium/standalone-chrome:4
-        ports:
-            - "10186:4444"
-            - "10187:5900"
-        networks:
-            - vach-net
+  vach-selenium:
+    container_name: vach-selenium
+    image: selenium/standalone-chrome:108.0
+    ports:
+      - '10186:4444'
+      - '10187:5900'
+    networks:
+      - vach-net
 
-    vach-myadmin:
-        container_name: vach-myadmin
-        image: phpmyadmin
-        environment:
-            PMA_HOST: 'vach-data'
-            PMA_USER: 'root'
-            PMA_PASSWORD: 'secret'
-        depends_on:
-            - vach-data
-        ports:
-            - "10182:80"
-        networks:
-            - vach-net
+  vach-myadmin:
+    container_name: vach-myadmin
+    image: phpmyadmin
+    environment:
+      PMA_HOST: 'vach-data'
+      PMA_USER: 'root'
+      PMA_PASSWORD: 'secret'
+    depends_on:
+      - vach-data
+    ports:
+      - '10182:80'
+    networks:
+      - vach-net
 
-    vach-mailcatcher:
-        container_name: vach-mailcatcher
-        image: tophfr/mailcatcher
-        ports:
-            - "10188:80"
-        networks:
-            - vach-net
+  vach-mail:
+    container_name: vach-mail
+    image: maildev/maildev
+    ports:
+      - '10188:80'
+    networks:
+      - vach-net
 
 networks:
-    vach-net:
-        driver: bridge
+  vach-net:
+    driver: bridge

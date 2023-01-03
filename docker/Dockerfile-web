@@ -1,15 +1,15 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
-    && apt-get -y upgrade \
-    && apt-get -y dist-upgrade \
-    && apt-get -y install \
-        curl wget inetutils-ping nano mysql-client git zip \
-        apache2 libapache2-mod-php \
-        php php-curl php-mysql php-zip php-xml php-mbstring php-intl php-gd php-xdebug \
-    && rm -rf /var/lib/apt/lists/*
+  && apt-get -y upgrade \
+  && apt-get -y dist-upgrade \
+  && apt-get -y install \
+  curl wget inetutils-ping nano mysql-client git zip \
+  apache2 libapache2-mod-php \
+  php php-curl php-mysql php-zip php-xml php-mbstring php-intl php-gd php-xdebug \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -19,7 +19,7 @@ ENV APACHE_LOG_DIR /var/log/apache2
 
 RUN /usr/sbin/a2enmod rewrite
 
-RUN sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 20M/g" /etc/php/7.4/apache2/php.ini
+RUN sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 20M/g" /etc/php/8.1/apache2/php.ini
 
 ENV PATH="/var/www/html/vendor/bin:${PATH}"
 

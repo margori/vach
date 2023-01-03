@@ -35,7 +35,7 @@ return [
             'class' => 'yii\symfonymailer\Mailer',
             'transport' => [
                 'scheme' => 'smtp', // "smtps": using TLS, "smtp": without using TLS.
-                'host' => 'vach-mailcatcher',
+                'host' => 'vach-mail',
                 'port' => 25,
                 'username' => '',
                 'password' => '',

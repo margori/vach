@@ -9,7 +9,7 @@ use app\controllers\ReportController;
 /* @var $form yii\bootstrap\ActiveForm */
 /* @var $wheel app\models\ContactForm */
 
-$this->title = Yii::t('report', 'Action Plan');
+$this->title = Yii::t('report', 'Conclusions - Stage 1');
 $this->params['breadcrumbs'][] = ['label' => Yii::t('team', 'Teams'), 'url' => ['/team']];
 $this->params['breadcrumbs'][] = ['label' => $team->fullname, 'url' => ['/team/view', 'id' => $team->id]];
 $this->params['breadcrumbs'][] = ['label' => Yii::t('report', 'Report'), 'url' => ['/report/view', 'id' => $team->id]];
@@ -17,7 +17,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="report-technical">
     <h1>
-        <?= Yii::t('report', 'Action Plan') ?>
+        <?= Yii::t('report', 'Conclusions - Stage 1') ?>
     </h1>
     <div class="row col-md-12">
         <?php $form = ActiveForm::begin(['id' => 'report-form']); ?>
