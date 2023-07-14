@@ -8,143 +8,162 @@ use yii\helpers\Html;
 /* @var $model app\models\ContactForm */
 
 if ($type == Wheel::TYPE_GROUP) {
-    $title = Yii::t('dashboard', 'Group Relations Matrix');
+  $title = Yii::t('dashboard', 'Group Relations Matrix');
 } elseif ($type == Wheel::TYPE_ORGANIZATIONAL) {
-    $title = Yii::t('dashboard', 'Organizational Relations Matrix');
+  $title = Yii::t('dashboard', 'Organizational Relations Matrix');
 } else {
-    $title = Yii::t('dashboard', 'Individual Relations Matrix');
+  $title = Yii::t('dashboard', 'Individual Relations Matrix');
 }
 
 if (!empty($member)) {
-    $title .= ' ' . Yii::t('app', 'of') . ' ' . $member->fullname;
+  $title .= ' ' . Yii::t('app', 'of') . ' ' . $member->fullname;
 } else {
-    $title .= ' ' . Yii::t('app', 'of the team');
+  $title .= ' ' . Yii::t('app', 'of the team');
 }
 
 $token = rand(100000, 999999);
 
+function getCellValue($data, $observerId, $observedId)
+{
+  $observer_sum = 0;
+  $observer_count = 0;
+
+  foreach ($data as $datum) {
+    if ($datum['observer_id'] == $observerId && $datum['observed_id'] == $observedId) {
+      $observer_sum += $datum['value'];
+      $observer_count++;
+    }
+  }
+
+  return $observer_count > 0 ? $observer_sum / $observer_count : -1;
+}
+
+function getCriticity($data, $observerId)
+{
+  $observer_sum = 0;
+  $observer_count = 0;
+
+  foreach ($data as $datum) {
+    if ($datum['observer_id'] == $observerId && $datum['observed_id'] != $observerId) {
+      $observer_sum += $datum['value'];
+      $observer_count++;
+    }
+  }
+
+  return $observer_count > 0 ? $observer_sum / $observer_count : -1;
+}
+
+function getProductivity($data, $observerId, $observedId)
+{
+  $observer_sum = 0;
+  $observer_count = 0;
+
+  foreach ($data as $datum) {
+    if ($datum['observer_id'] != $observerId && $datum['observed_id'] == $observerId) {
+      $observer_sum += $datum['value'];
+      $observer_count++;
+    }
+  }
+
+  return $observer_count > 0 ? $observer_sum / $observer_count : -1;
+}
+
+function getCellHtml($value)
+{
+  if ($value < 0) {
+    return Html::tag('td', '', []);
+  }
+  if ($value > Yii::$app->params['good_consciousness']) {
+    $class = 'success';
+  } elseif ($value < Yii::$app->params['minimal_consciousness']) {
+    $class = 'danger';
+  } else {
+    $class = 'warning';
+  }
+
+  return Html::tag('td', round($value * 100 / 4, 1) . '%', ['class' => $class]);
+}
+
 $drawing_data = [];
 foreach ($data as $datum) {
-    if ($datum['observer_id'] == $memberId && $datum['observed_id'] == $memberId) {
-        $drawing_data[] = $datum;
-    }
+  if ($datum['observer_id'] == $memberId && $datum['observed_id'] == $memberId) {
+    $drawing_data[] = $datum;
+  }
 }
 
 foreach ($data as $datum) {
-    if ($datum['observer_id'] != $memberId && $datum['observed_id'] == $memberId) {
-        $drawing_data[] = $datum;
-    }
+  if ($datum['observer_id'] != $memberId && $datum['observed_id'] == $memberId) {
+    $drawing_data[] = $datum;
+  }
 }
 
 $width = 800;
 $height = 400;
 if (count($drawing_data) < 4) {
-    $height = 150;
+  $height = 150;
 }
 $token = rand(100000, 999999);
 ?>
 <div id="div<?= $token ?>" class="row col-md-12">
-    <table class="table table-bordered table-hover">
+  <table class="table table-bordered table-hover">
+    <tr>
+      <td>
+        <?= Yii::t('wheel', "Observer \\ Observed") ?>
+      </td>
+      <?php
+      foreach ($members as $id => $member) {
+        if ($id > 0) {
+      ?>
+          <td>
+            <?= $member ?>
+          </td>
+      <?php
+        }
+      } ?>
+      <td>
+        <?= Yii::t('app', 'Critical') ?>
+      </td>
+    </tr>
+    <?php
+    $observed_sum = [];
+    foreach ($members as $observerId => $observer) {
+      if ($observerId > 0) {
+    ?>
         <tr>
-            <td>
-                <?= Yii::t('wheel', "Observer \\ Observed") ?>
-            </td>
-            <?php
-            foreach ($members as $id => $member) {
-                if ($id > 0) {
-                    ?>
-                    <td>
-                        <?= $member ?>
-                    </td>
-                <?php
-                }
-            } ?>
-            <td>
-                <?= Yii::t('app', 'Critical') ?>
-            </td>
-        </tr>
-        <?php
-        $observed_sum = [];
-        foreach ($members as $observerId => $observer) {
-            if ($observerId > 0) {
-                $observer_sum = 0;
-                $observer_count = 0; ?>
-                <tr>
-                    <td>
-                        <?= $observer ?>
-                    </td>
-                    <?php
-                    foreach ($members as $observedId => $observed) {
-                        if ($observedId > 0) {
-                            foreach ($data as $datum) {
-                                if ($datum['observer_id'] == $observerId && $datum['observed_id'] == $observedId) {
-                                    if ($datum['value'] > Yii::$app->params['good_consciousness']) {
-                                        $class = 'success';
-                                    } elseif ($datum['value'] < Yii::$app->params['minimal_consciousness']) {
-                                        $class = 'danger';
-                                    } else {
-                                        $class = 'warning';
-                                    }
-
-                                    echo Html::tag('td', round($datum['value'] * 100 / 4, 1) . '%', ['class' => $class]);
-                                    if ($observedId != $observerId) {
-                                        $observer_sum += $datum['value'];
-                                        $observer_count++;
-                                        if (!isset($observed_sum[$observedId])) {
-                                            $observed_sum[$observedId] = 0;
-                                        }
-                                        $observed_sum[$observedId] += $datum['value'];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                if ($observer_count > 0) {
-                    if ($observer_sum / $observer_count > Yii::$app->params['good_consciousness']) {
-                        $class = 'success';
-                    } elseif ($observer_sum / $observer_count < Yii::$app->params['minimal_consciousness']) {
-                        $class = 'danger';
-                    } else {
-                        $class = 'warning';
-                    }
-
-                    echo Html::tag('td', round($observer_sum / $observer_count * 100 / 4, 1) . '%', ['class' => $class]);
-                } ?>
-                </tr>
-            <?php
+          <td>
+            <?= $observer ?>
+          </td>
+          <?php
+          foreach ($members as $observedId => $observed) {
+            if ($observedId > 0) {
+              echo getCellHtml(getCellValue($data, $observerId, $observedId));
             }
-        } ?>
-        <tr>
-            <td>
-                <?= Yii::t('dashboard', 'M. Productivity') ?>
-            </td>
-            <?php
-            if ($observer_count > 0) {
-                foreach ($members as $id => $member) {
-                    if ($id == 0) {
-                        continue;
-                    }
-                    $sum = isset($observed_sum[$id]) ? $observed_sum[$id] : 0;
-                    if ($sum / $observer_count > Yii::$app->params['good_consciousness']) {
-                        $class = 'success';
-                    } elseif ($sum / $observer_count < Yii::$app->params['minimal_consciousness']) {
-                        $class = 'danger';
-                    } else {
-                        $class = 'warning';
-                    }
-
-                    echo Html::tag('td', round($sum / $observer_count * 100 / 4, 1) . '%', ['class' => $class]);
-                }
-            }
-            ?>
+          }
+          echo getCellHtml(getCriticity($data, $observerId));
+          ?>
         </tr>
-    </table>
+    <?php
+      }
+    } ?>
+    <tr>
+      <td>
+        <?= Yii::t('dashboard', 'M. Productivity') ?>
+      </td>
+      <?php
+      foreach ($members as $observerId => $observer) {
+        if ($observerId > 0) {
+          echo getCellHtml(getProductivity($data, $observerId, $observedId));
+        }
+      }
+      ?>
+    </tr>
+  </table>
 </div>
 <?php if (strpos(Yii::$app->request->absoluteUrl, 'download') === false) {
-                ?>
-    <div class="col-md-12 text-center">
-        <?= Html::button(Yii::t('app', 'Export'), ['class' => 'btn btn-default hidden-print', 'onclick' => "printDiv('div$token')"]) ?>
-    </div>
+?>
+  <div class="col-md-12 text-center">
+    <?= Html::button(Yii::t('app', 'Export'), ['class' => 'btn btn-default hidden-print', 'onclick' => "printDiv('div$token')"]) ?>
+  </div>
 <?php
-            } ?>
+} ?>
 <div class="clearfix"></div>
