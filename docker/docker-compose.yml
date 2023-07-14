@@ -27,15 +27,6 @@ services:
     networks:
       - vach-net
 
-  vach-selenium:
-    container_name: vach-selenium
-    image: selenium/standalone-chrome:108.0
-    ports:
-      - '10186:4444'
-      - '10187:5900'
-    networks:
-      - vach-net
-
   vach-myadmin:
     container_name: vach-myadmin
     image: phpmyadmin
@@ -47,6 +38,15 @@ services:
       - vach-data
     ports:
       - '10182:80'
+    networks:
+      - vach-net
+
+  vach-selenium:
+    container_name: vach-selenium
+    image: selenium/standalone-chrome:108.0
+    ports:
+      - '10186:4444'
+      - '10187:5900'
     networks:
       - vach-net
 

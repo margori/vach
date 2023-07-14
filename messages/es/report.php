@@ -23,7 +23,7 @@ return [
     'Competence Matrix' => 'Matriz de competencias',
     'Competences Matrix' => 'Matriz de competencias',
     'Competences Matrix of {member}' => 'Matriz de competencias de {member}',
-    'Conclusions - Stage 1' => 'Conclusiones - Fase 1',
+    'Summary Stage 2 and Conclusions' => 'Síntesis Fase 2 y Conclusiones',
     'Effectiveness Matrix' => 'Matriz de efectividad',
     'Emergent Matrix' => 'Matriz de emergentes',
     'Emergents Matrix' => 'Matriz de emergentes',
@@ -42,6 +42,7 @@ return [
     'Relations Matrix' => 'Matriz de relaciones',
     'Relations Matrix of {member}' => 'Matriz de relaciones de {member}',
     'Report' => 'Informe',
-    'Since graphic clarity, farther analisis is not required' => 'Dada la claridad de los gráficos, un análisis adicional no es requerido.',
-    'Summary' => 'Síntesis',
+    'Since graphic clarity, farther analisis is not required' =>
+        'Dada la claridad de los gráficos, un análisis adicional no es requerido.',
+    'Summary Stage 1' => 'Síntesis Fase 1',
 ];
