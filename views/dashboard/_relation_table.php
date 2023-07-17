@@ -73,6 +73,7 @@ function getCellHtml($value)
   if ($value < 0) {
     return Html::tag('td', '', []);
   }
+
   if ($value > Yii::$app->params['good_consciousness']) {
     $class = 'success';
   } elseif ($value < Yii::$app->params['minimal_consciousness']) {
@@ -83,26 +84,6 @@ function getCellHtml($value)
 
   return Html::tag('td', round($value * 100 / 4, 1) . '%', ['class' => $class]);
 }
-
-$drawing_data = [];
-foreach ($data as $datum) {
-  if ($datum['observer_id'] == $memberId && $datum['observed_id'] == $memberId) {
-    $drawing_data[] = $datum;
-  }
-}
-
-foreach ($data as $datum) {
-  if ($datum['observer_id'] != $memberId && $datum['observed_id'] == $memberId) {
-    $drawing_data[] = $datum;
-  }
-}
-
-$width = 800;
-$height = 400;
-if (count($drawing_data) < 4) {
-  $height = 150;
-}
-$token = rand(100000, 999999);
 ?>
 <div id="div<?= $token ?>" class="row col-md-12">
   <table class="table table-bordered table-hover">
