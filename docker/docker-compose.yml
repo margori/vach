@@ -17,7 +17,7 @@ services:
 
   vach-data:
     container_name: vach-data
-    image: mysql:5.7
+    image: mysql:8.0
     tmpfs: /var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: 'secret'
