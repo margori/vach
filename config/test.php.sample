@@ -8,13 +8,14 @@ $test_db = require(__DIR__ . '/test_db.php');
  * Application configuration shared by all test types
  */
 $web = [
+    'aliases' => [
+        '@bower' => '@vendor/bower-asset',
+        '@npm' => '@vendor/npm-asset',
+    ],
     'id' => 'basic-tests',
     'basePath' => dirname(__DIR__),
     'language' => 'es-AR',
     'components' => [
-        'mailer' => [
-            'useFileTransport' => true,
-        ],
         'assetManager' => [
             'bundles' => [
                 'yii\web\JqueryAsset' => [
@@ -38,11 +39,8 @@ $web = [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'class' => 'webvimark\modules\UserManagement\components\UserConfig',
-            // Comment this if you don't want to record user logins
-            'on afterLogin' => function($event) {
-                \webvimark\modules\UserManagement\models\UserVisitLog::newVisitor($event->identity->id);
-            }
+            'identityClass' => 'app\models\User',
+            'enableAutoLogin' => true,
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -70,48 +68,24 @@ $web = [
         ],
         'i18n' => [
             'translations' => [
-                'app' => [
-                    'class' => 'yii\i18n\PhpMessageSource',
+                '*' => [
+                'class' => 'yii\i18n\PhpMessageSource',
+                'basePath' => '@app/messages', // if advanced application, set @frontend/messages
+                'sourceLanguage' => 'en',
                 ],
-                'help' => [
-                    'class' => 'yii\i18n\PhpMessageSource',
-                ],
-                'import' => [
-                    'class' => 'yii\i18n\PhpMessageSource',
-                ],
-                'backup' => [
-                    'class' => 'yii\i18n\PhpMessageSource',
-                ],
-                'afip' => [
-                    'class' => 'yii\i18n\PhpMessageSource',
-                ],
-                'accounting' => [
-                    'class' => 'yii\i18n\PhpMessageSource',
-                ],
-                'paycheck' => [
-                    'class' => 'yii\i18n\PhpMessageSource',
-                ],
-                'ticket' => [
-                    'class' => 'yii\i18n\PhpMessageSource',
-                ],
-                'modules/user-management/*' => [
-                    'class' => 'yii\i18n\PhpMessageSource',
-                    'sourceLanguage' => 'en',
-                    'fileMap' => [
-                        'modules/user-management/back' => 'modules/user-management/back.php',
-                        'modules/user-management/front' => 'modules/user-management/front.php',
-                    ],
-                ]
             ],
         ],
         'formatter' => [
+            'locale' => 'en-US',
             'class' => 'yii\i18n\Formatter',
             'dateFormat' => 'php:d-m-Y',
-            'datetimeFormat' => 'php:d-m-Y H:i:s',
+            'datetimeFormat' => 'php:H:i:s d-m-Y',
             'timeFormat' => 'php:H:i:s',
-            'decimalSeparator' => '.',
-            'thousandSeparator' => ',',
-            //'currencyCode' => 'ARS',
+            'decimalSeparator' => ',',
+            'thousandSeparator' => '.',
+            'numberFormatterSymbols' => [
+                NumberFormatter::CURRENCY_SYMBOL => 'USD $',
+            ],
         ],
         'request' => [
             'cookieValidationKey' => 'test',
@@ -123,14 +97,19 @@ $web = [
             ],
             */
         ],
+        'db' => $test_db,
     ],
     'modules' => $modules,
     'params' => $params,
 ];
 
-
-$web['components'] = yii\helpers\ArrayHelper::merge(
-    $web['components'], $test_db
-);
+if (YII_DEBUG) {
+    // configuration adjustments for 'dev' environment
+    $config['bootstrap'][] = 'debug';
+    $config['modules']['debug'] = [
+        'class' => 'yii\debug\Module',
+        'allowedIPs' => ['*'],
+    ];
+}
 
 return $web;

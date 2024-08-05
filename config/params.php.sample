@@ -1,6 +1,11 @@
 <?php
 
 return [
+    'app' => [
+        'name' => 'VACH',
+        'moto' => 'Herramienta de integración de equipos',
+        'sponsor' => 'Fundación Empowerment',
+    ],
     'allow_register' => false,
     'adminEmail' => 'admin@example.com',
     'senderEmail' => 'sender@example.com',
@@ -9,14 +14,6 @@ return [
     'server_status' => 'online',
     'send_wheel_answers' => false,
     'user.passwordResetTokenExpire' => 3600,
-    // Email params
-    'email' => [
-        'host' => 'localhost',
-        'username' => '',
-        'password' => '',
-        'port' => '1025',
-        //'encryption' => 'tls',
-    ],
     //
     'monetize' => true,
     'manual_mode' => false,

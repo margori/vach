@@ -53,9 +53,5 @@ foreach ($wheel->answers as $answer) {
 <p>
     <?= Yii::t('wheel', 'Thank you very much!') ?>
 </p>
-<p>
-    <b>
-        <?= Yii::t('app', 'Empowerment Foundation') ?>
-    </b>
-</p>
+<?=$this->render('_footer')?>
 

@@ -39,5 +39,5 @@ DetailView::widget([
 ?>
 <p>
     Thanks,<br>
-    VACH
+    <?=Yii::$app->params['app']['name']?>
 </p>

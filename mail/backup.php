@@ -12,5 +12,5 @@ use app\models\Wheel;
 </p>
 <p>
     Thanks,<br>
-    VACH
+    <?=Yii::$app->params['app']['name']?>
 </p>

@@ -1,8 +1,5 @@
 <?php
 
-use yii\helpers\Html;
-use yii\helpers\Url;
-use app\models\Stock;
 use yii\widgets\DetailView;
 ?>
 <p>
@@ -28,7 +25,7 @@ DetailView::widget([
         ],
         [
             'attribute' => 'quantity',
-            'label' => Yii::t('stock', 'Quantity')
+            'label' => Yii::t('stock', 'Quantity'),
         ],
         [
             'attribute' => 'price',
@@ -42,5 +39,5 @@ DetailView::widget([
 ?>
 <p>
     Thanks,<br>
-    VACH
+    <?=Yii::$app->params['app']['name']?>
 </p>

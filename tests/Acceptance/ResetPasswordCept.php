@@ -20,7 +20,7 @@ $I->click('Solicitar');
 
 $I->waitForText('Revise su buzón de correo para más instrucciones');
 
-$I->seeInLastEmailSubject('Reinicio de contraseña para VACH');
+$I->seeInLastEmailSubject('Reinicio de contraseña');
 
 $links = $I->grabUrlsFromLastEmail();
 

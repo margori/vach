@@ -59,7 +59,7 @@ class PaymentController extends BaseController {
                     Yii::$app->mailer->compose('payment_send', [
                         'paymentLink' => $paymentLink,
                     ])
-                        ->setSubject(\Yii::t('stock', 'VACH licences payment link'))
+                        ->setSubject(\Yii::t('stock', Yii::$app->params['app']['name'] . ': licences payment link'))
                         ->setFrom(Yii::$app->params['senderEmail'])
                         ->setTo($model->payerEmail)
                         ->setCc($payment->coach->email)

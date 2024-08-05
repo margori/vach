@@ -1,19 +1,16 @@
 <?php
 
 use yii\helpers\Html;
-use yii\helpers\Url;
-use app\models\Wheel;
-
 
 ?>
 <p>
-    <?= 'Estimado/a,' ?>
+    <?='Estimado/a,'?>
 </p>
 <p>
-    Se nos ha solicitado le enviamos el link de pago de licencias de VACH.
+    Se nos ha solicitado le enviamos el link de pago de licencias de <?=Yii::$app->params['app']['name']?>.
 </p>
 <p>
-    <?= Html::a(Yii::t('stock', 'Begin payment'), $paymentLink, ['style' => '
+    <?=Html::a(Yii::t('stock', 'Begin payment'), $paymentLink, ['style' => '
         background-color: #5cb85c;
         border-color: #4cae4c;
         color: #fff;
@@ -30,6 +27,6 @@ use app\models\Wheel;
         text-align: center;
         vertical-align: middle;
         white-space: nowrap;
-        box-sizing: border-box;']) ?>
+        box-sizing: border-box;', ])?>
 </p>
-<?= $this->render('_footer') ?>
+<?=$this->render('_footer')?>

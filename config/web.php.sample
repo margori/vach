@@ -1,6 +1,8 @@
 <?php
 
+$modules = require(__DIR__ . '/modules.php');
 $params = require(__DIR__ . '/params.php');
+$db = require __DIR__ . '/db.php';
 
 \Yii::$container->set('yii\widgets\LinkPager', [
     'firstPageLabel' => "<span class='glyphicon glyphicon-fast-backward'></span>",
@@ -76,34 +78,22 @@ $config = [
                     'levels' => ['error', 'warning'],
                 ],
             ],
+            'class' => 'yii\log\Logger',
         ],
-        'db' => require(__DIR__ . '/db.php'),
+        'db' => $db,
     ],
     'params' => $params,
-    'modules' => [
-        'admin' => [
-            'class' => 'app\modules\admin\AdminModule',
-        ],
-        'gridview' => [
-            'class' => 'kartik\grid\Module'
-        ],
-        'telegram' => [
-            'class' => 'onmotion\telegram\Module',
-            'API_KEY' => '******************',
-            'BOT_NAME' => '******************',
-            'hook_url' => '****************', // must be https!
-            'PASSPHRASE' => '****************'
-        ],
-    ],
+    'modules' => $modules,
 ];
 
 if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
-    $config['modules']['debug'] = 'yii\debug\Module';
-
-    $config['bootstrap'][] = 'gii';
-    $config['modules']['gii'] = 'yii\gii\Module';
+    $config['modules']['debug'] = [
+        'class' => 'yii\debug\Module',
+        // uncomment the following to add your IP if you are not connecting from localhost.
+        'allowedIPs' => ['127.0.0.1', '::1'],
+    ];
 }
 
 return $config;

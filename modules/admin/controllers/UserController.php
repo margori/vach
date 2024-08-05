@@ -169,7 +169,7 @@ class UserController extends AdminBaseController {
         $emailSent = \Yii::$app->mailer->compose('passwordGenerate', ['user' => $user, 'password' => $password])
             ->setFrom(\Yii::$app->params['senderEmail'])
             ->setTo($user->email)
-            ->setSubject(\Yii::t('app', 'Password for VACH'))
+            ->setSubject(\Yii::t('app', 'Password'))
             ->send();
 
         if (!$emailSent) {
@@ -199,7 +199,7 @@ class UserController extends AdminBaseController {
         $resetPasswordEmailSent = \Yii::$app->mailer->compose('passwordResetToken', ['users' => [$user]])
             ->setFrom(\Yii::$app->params['senderEmail'])
             ->setTo($user->email)
-            ->setSubject(\Yii::t('app', 'Reset password for VACH'))
+            ->setSubject(\Yii::t('app', 'Reset password'))
             ->send();
 
         if ($resetPasswordEmailSent) {
