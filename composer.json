@@ -17,12 +17,12 @@
     "irc": "irc://irc.freenode.net/yii",
     "source": "https://github.com/yiisoft/yii2"
   },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
+  "minimum-stability": "stable",
   "require": {
     "php": ">=8",
-    "yiisoft/yii2": "*",
+    "yiisoft/yii2": "~2.0.45",
     "yiisoft/yii2-bootstrap": "*",
+    "yiisoft/yii2-symfonymailer": "*",
     "yiisoft/yii2-httpclient": "*",
     "kartik-v/yii2-widgets": "*",
     "kartik-v/yii2-checkbox-x": "*",
@@ -31,13 +31,12 @@
     "2amigos/yii2-ckeditor-widget": "*",
     "phpoffice/phppresentation": "*",
     "phpoffice/phpword": "*",
-    "yiisoft/yii2-symfonymailer": "*",
     "rmrevin/yii2-fontawesome": "*"
   },
   "require-dev": {
-    "yiisoft/yii2-debug": "*",
-    "yiisoft/yii2-gii": "*",
-    "yiisoft/yii2-faker": "*",
+    "yiisoft/yii2-debug": "~2.1.0",
+    "yiisoft/yii2-faker": "~2.0.0",
+    "codeception/codeception": "^5.0.0 || ^4.0",
     "codeception/module-webdriver": "*",
     "codeception/module-db": "*",
     "codeception/module-yii2": "*",
@@ -47,41 +46,12 @@
     "codeception/module-phpbrowser": "*"
   },
   "config": {
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true
+    },
     "process-timeout": 1800,
     "fxp-asset": {
       "enabled": false
-    },
-    "allow-plugins": {
-      "yiisoft/yii2-composer": false
-    }
-  },
-  "scripts": {
-    "post-install-cmd": [
-      "yii\\composer\\Installer::postInstall"
-    ],
-    "post-create-project-cmd": [
-      "yii\\composer\\Installer::postCreateProject",
-      "yii\\composer\\Installer::postInstall"
-    ]
-  },
-  "extra": {
-    "yii\\composer\\Installer::postCreateProject": {
-      "setPermission": [
-        {
-          "runtime": "0777",
-          "web/assets": "0777",
-          "yii": "0755"
-        }
-      ]
-    },
-    "yii\\composer\\Installer::postInstall": {
-      "generateCookieValidationKey": [
-        "config/web.php"
-      ]
-    },
-    "asset-installer-paths": {
-      "npm-asset-library": "vendor/npm",
-      "bower-asset-library": "vendor/bower"
     }
   },
   "repositories": [
@@ -89,10 +59,5 @@
       "type": "composer",
       "url": "https://asset-packagist.org"
     }
-  ],
-  "autoload-dev": {
-    "psr-4": {
-      "Tests\\": "tests/"
-    }
-  }
+  ]
 }
