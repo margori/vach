@@ -184,6 +184,9 @@ class Payment extends ActiveRecord {
         $transaction->payment_id = $this->id;
         $transaction->amount = $this->amount;
         $transaction->currency = $this->currency;
+        $transaction->rate = 0;
+        $transaction->commision = 0;
+        $transaction->commision_currency = "";
         $transaction->save();
 
         return $transaction;

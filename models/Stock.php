@@ -184,6 +184,8 @@ class Stock extends ActiveRecord {
         $payment->currency = 'USD';
         $payment->amount = $model->quantity * $model->price;
         $payment->rate = 0;
+        $payment->commision = 0;
+        $payment->commision_currency = "";
         $payment->status = Payment::STATUS_PENDING;
         $payment->is_manual = false;
         $payment->part_distribution = 50;
@@ -207,7 +209,7 @@ class Stock extends ActiveRecord {
             }
         }
 
-        $model->description = 'VACH ' . $payment->concept;
+        $model->description = $payment->concept;
         $model->amount = $payment->amount;
         $model->referenceCode = $payment->uuid;
 
@@ -219,13 +221,15 @@ class Stock extends ActiveRecord {
         $product = Product::findOne(['id' => $model->product_id]);
         $created_stamp = date('Y-m-d H:i:s');
 
+        Currency::saveLastRate($model->rate);
+
         $payment = new Payment();
         $payment->coach_id = $model->coach_id;
         $payment->creator_id = Yii::$app->user->id;
         $payment->concept = $model->quantity . ' ' . $product->name;
         $payment->currency = 'USD';
         $payment->amount = $model->quantity * $model->price;
-        $payment->rate = Currency::lastValue();
+        $payment->rate = $model->rate;
         $payment->commision_currency = 'ARS';
         $payment->commision = 0;
         $payment->status = $model->payed ? Payment::STATUS_PAID : Payment::STATUS_PENDING;
@@ -301,7 +305,7 @@ class Stock extends ActiveRecord {
                     'status' => Stock::STATUS_VALID,
                     'consumed_stamp' => null,
                     'coach_id' => $consumer_id,
-                    'product_id' => $product_id
+                    'product_id' => $product_id,
                 ])
                 ->orderBy('id desc')
                 ->limit(1)
@@ -322,9 +326,9 @@ class Stock extends ActiveRecord {
 
             Yii::$app->db->createCommand()
                 ->update('payment', [
-                    'amount' => new Expression('amount - ' . $available_stock['price'])
+                    'amount' => new Expression('amount - ' . $available_stock['price']),
                 ], [
-                    'id' => $available_stock['payment_id']
+                    'id' => $available_stock['payment_id'],
                 ])->execute();
 
             $cancelledCount++;

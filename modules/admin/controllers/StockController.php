@@ -94,6 +94,7 @@ class StockController extends AdminBaseController {
             'quantity' => $quantity,
             'price' => $product->price,
             'payed' => false,
+            'rate' => Currency::getLastValue(),
         ]);
 
         if ($model->load(Yii::$app->request->post())) {
