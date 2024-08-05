@@ -44,8 +44,8 @@ class Perception {
         $graph->SetFrame(false);
         $graph->xgrid->Show();
         $graph->xaxis->SetTickLabels($dimensions);
-        $graph->xaxis->SetFont(FF_COOL, FS_NORMAL, 24);
-        $graph->yaxis->SetFont(FF_COOL, FS_NORMAL, 18);
+        $graph->xaxis->SetFont(FF_COOL, FS_NORMAL, 14);
+        $graph->yaxis->SetFont(FF_COOL, FS_NORMAL, 14);
         $graph->legend->SetPos(0.5, 0.93, 'center', 'bottom');
         $graph->legend->SetFont(FF_COOL, FS_NORMAL, 20);
         $graph->legend->SetMarkAbsSize(20);

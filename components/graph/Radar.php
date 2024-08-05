@@ -4,14 +4,17 @@ namespace app\components\graph;
 
 use Yii;
 use app\models\Person;
+use app\models\Team;
 use app\models\Wheel;
 use app\models\WheelQuestion;
+use Codeception\Attribute\When;
 
 class Radar
 {
 
     static public function draw($teamId, $memberId, $wheelType)
     {
+        $team = Team::findOne(['id' => $teamId]);
         $redWheel = Wheel::getProjectedIndividualWheel($teamId, $memberId);
         switch ($wheelType) {
             case Wheel::TYPE_GROUP:
@@ -22,7 +25,7 @@ class Radar
                 break;
         }
 
-        $dimensions = WheelQuestion::getDimensionNames($wheelType, true);
+        $dimensions =  $team->teamType->getDimensionNames($wheelType, true);
         if ($wheelType > Wheel::TYPE_INDIVIDUAL) {
             $individual_dimensions = WheelQuestion::getDimensionNames(Wheel::TYPE_INDIVIDUAL, true);
             for ($i = 0; $i < count($dimensions); $i++) {
