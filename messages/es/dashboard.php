@@ -60,7 +60,7 @@ return [
     'Organizational Performance Matrix' => 'Matriz de desempeño organizacional',
     'Organizational Rankings' => 'Rankings organizacionales',
     'Organizational Relations Matrix' => 'Matriz de relaciones organizacionales',
-    'Perception Adjustment Matrix' => 'Matrix de ajuste perceptual',
+    'Perception Adjustment Matrix' => 'Matriz de ajuste perceptual',
     'Performance Matrix' => 'Matriz de performance',
     'Person' => 'Persona',
     'Prod. deviation' => 'Desviación de prod.',

@@ -43,6 +43,7 @@ return [
     'Rate' => 'Tasa',
     'Raw amount' => 'Monto bruto',
     'Set commision' => 'Fijar comisión',
+    'Site administrators has been notified.' => 'El administrador del sitio ha sido notificado',
     'Thank you!' => '¡Gracias!',
     'There was an error' => 'Hubo un error',
     'Transactions' => 'Transaciones',

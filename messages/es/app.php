@@ -38,6 +38,7 @@ return [
     'Contact' => 'Contacto',
     'Contact VACH administrator' => 'Contactar al administrador de VACH',
     'Contact administrator' => 'Contactar administrador',
+    'Contact site administrator' => 'Contacte el administrador del sitio',
     'Create' => 'Crear',
     'Creator' => 'Creador',
     'Critical' => 'Criticidad',
