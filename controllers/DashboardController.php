@@ -2,24 +2,17 @@
 
 namespace app\controllers;
 
-use Yii;
-use yii\filters\AccessControl;
-use yii\web\Controller;
-use yii\helpers\ArrayHelper;
-use yii\filters\VerbFilter;
-use app\models\Wheel;
-use app\models\TeamMember;
-use app\models\Team;
 use app\models\Company;
 use app\models\DashboardFilter;
 use app\models\Person;
+use app\models\Team;
+use app\models\Wheel;
+use Yii;
 
-class DashboardController extends BaseController
-{
+class DashboardController extends BaseController {
     public $layout = 'inner';
 
-    public function actionIndex()
-    {
+    public function actionIndex() {
         SiteController::checkUserSession();
 
         $filter = Yii::$app->session->get('DashboardFilter') ?: new DashboardFilter();
@@ -114,25 +107,25 @@ class DashboardController extends BaseController
         }
 
         return $this->render('index', [
-                    'filter' => $filter,
-                    'companies' => $companies,
-                    'company' => $company,
-                    'teams' => $teams,
-                    'team' => $team,
-                    'members' => $members,
-                    'member' => $member,
-                    // Individual wheel
-                    'projectedIndividualWheel' => $projectedIndividualWheel,
-                    'projectedGroupWheel' => $projectedGroupWheel,
-                    'projectedOrganizationalWheel' => $projectedOrganizationalWheel,
-                    'reflectedGroupWheel' => $reflectedGroupWheel,
-                    'reflectedOrganizationalWheel' => $reflectedOrganizationalWheel,
-                    'individualPerformanceMatrix' => $individualPerformanceMatrix,
-                    // group wheel
-                    'performanceMatrix' => $performanceMatrix,
-                    'competences' => $competences,
-                    'relationsMatrix' => $relationsMatrix,
-                    'emergents' => $emergents,
+            'filter' => $filter,
+            'companies' => $companies,
+            'company' => $company,
+            'teams' => $teams,
+            'team' => $team,
+            'members' => $members,
+            'member' => $member,
+            // Individual wheel
+            'projectedIndividualWheel' => $projectedIndividualWheel,
+            'projectedGroupWheel' => $projectedGroupWheel,
+            'projectedOrganizationalWheel' => $projectedOrganizationalWheel,
+            'reflectedGroupWheel' => $reflectedGroupWheel,
+            'reflectedOrganizationalWheel' => $reflectedOrganizationalWheel,
+            'individualPerformanceMatrix' => $individualPerformanceMatrix,
+            // group wheel
+            'performanceMatrix' => $performanceMatrix,
+            'competences' => $competences,
+            'relationsMatrix' => $relationsMatrix,
+            'emergents' => $emergents,
         ]);
     }
 }

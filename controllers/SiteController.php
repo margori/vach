@@ -4,17 +4,14 @@ namespace app\controllers;
 
 use app\models\LoginForm;
 use app\models\PasswordResetRequestForm;
-use app\models\RegisterModel;
 use app\models\ResetPasswordForm;
 use app\models\Wheel;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 
-class SiteController extends BaseController
-{
-    public function behaviors()
-    {
+class SiteController extends BaseController {
+    public function behaviors() {
         return [
             'access' => [
                 'class' => AccessControl::className(),
@@ -36,8 +33,7 @@ class SiteController extends BaseController
         ];
     }
 
-    public function actions()
-    {
+    public function actions() {
         return [
             'error' => [
                 'class' => 'yii\web\ErrorAction',
@@ -49,13 +45,11 @@ class SiteController extends BaseController
         ];
     }
 
-    public function beforeAction($action)
-    {
+    public function beforeAction($action) {
         return true;
     }
 
-    public function actionIndex($username = '')
-    {
+    public function actionIndex($username = '') {
         if (!\Yii::$app->user->isGuest) {
             return $this->redirect(['/team']);
         }
@@ -75,8 +69,7 @@ class SiteController extends BaseController
         ]);
     }
 
-    public function actionToken()
-    {
+    public function actionToken() {
         if (!Yii::$app->request->isPost) {
             return $this->goHome();
         }
@@ -92,8 +85,7 @@ class SiteController extends BaseController
         return $this->redirect(['wheel/run', 'token' => $token]);
     }
 
-    public function actionLogin()
-    {
+    public function actionLogin() {
         if (!\Yii::$app->user->isGuest) {
             return $this->redirect(['/team']);
         }
@@ -119,8 +111,7 @@ class SiteController extends BaseController
         }
     }
 
-    public static function checkUserSession()
-    {
+    public static function checkUserSession() {
         if (Yii::$app->user->isGuest) {
             Yii::$app->response->redirect(['/site'])->send();
             return false;
@@ -137,8 +128,7 @@ class SiteController extends BaseController
         return true;
     }
 
-    public function actionLogout()
-    {
+    public function actionLogout() {
         Yii::$app->db->createCommand()
             ->delete('user_session', 'token = :token and stamp < :stamp', [
                 ':token' => session_id(),
@@ -150,8 +140,7 @@ class SiteController extends BaseController
         return $this->goHome();
     }
 
-    public function actionRegister()
-    {
+    public function actionRegister() {
         $model = new \app\models\User();
         $model->scenario = \app\models\User::PASSWORD;
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
@@ -162,7 +151,9 @@ class SiteController extends BaseController
                 $loginModel->password = $model->password;
 
                 if ($loginModel->login()) {
-                    \Yii::$app->session->addFlash('success', \Yii::t('register', 'Sign up successfull. Welcome to VACH!'));
+                    \Yii::$app->session->addFlash('success',
+                        \Yii::t('register', 'Sign up successfull. Welcome to ' . Yii::$app->params['app']['name'] . '!'
+                        ));
                     return $this->goHome();
                 }
             } else {
@@ -182,8 +173,7 @@ class SiteController extends BaseController
      *
      * @return mixed
      */
-    public function actionRequestPasswordReset()
-    {
+    public function actionRequestPasswordReset() {
         $model = new PasswordResetRequestForm();
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             if ($model->sendEmail()) {
@@ -205,8 +195,7 @@ class SiteController extends BaseController
      * @return mixed
      * @throws BadRequestHttpException
      */
-    public function actionResetPassword($token)
-    {
+    public function actionResetPassword($token) {
         if (empty($token) || !is_string($token)) {
             Yii::$app->session->setFlash('error', Yii::t('app', 'Password reset token cannot be blank.'));
             return $this->redirect(['index']);
@@ -228,32 +217,27 @@ class SiteController extends BaseController
         ]);
     }
 
-    public function actionCoach()
-    {
+    public function actionCoach() {
         return $this->render('coachIntro', [
         ]);
     }
 
-    public function actionPerson()
-    {
+    public function actionPerson() {
         return $this->render('personIntro', [
         ]);
     }
 
-    public function actionEs()
-    {
+    public function actionEs() {
         Yii::$app->session->set('language', 'es');
         return $this->goHome();
     }
 
-    public function actionEn()
-    {
+    public function actionEn() {
         Yii::$app->session->set('language', 'en');
         return $this->goHome();
     }
 
-    public function actionContact()
-    {
+    public function actionContact() {
         if (!Yii::$app->user->isGuest) {
             $this->layout = 'inner';
         }
@@ -275,14 +259,12 @@ class SiteController extends BaseController
         ]);
     }
 
-    public static function addFlash($key, $value)
-    {
+    public static function addFlash($key, $value) {
         \Yii::$app->session->addFlash($key, $value);
         LogController::log($value);
     }
 
-    public static function FlashErrors($record)
-    {
+    public static function FlashErrors($record) {
         if (!isset($record)) {
             return;
         }
@@ -294,8 +276,7 @@ class SiteController extends BaseController
         }
     }
 
-    public static function Errors($record)
-    {
+    public static function Errors($record) {
         if (!isset($record)) {
             return '';
         }
@@ -309,8 +290,7 @@ class SiteController extends BaseController
         return $result;
     }
 
-    public function actionMigrateUp()
-    {
+    public function actionMigrateUp() {
         // https://github.com/yiisoft/yii2/issues/1764#issuecomment-42436905
         defined('STDIN') or define('STDIN', fopen('php://stdin', 'r'));
         defined('STDOUT') or define('STDOUT', fopen('php://stdout', 'w'));
@@ -327,8 +307,7 @@ class SiteController extends BaseController
         \Yii::$app = $oldApp;
     }
 
-    public function actionBackup()
-    {
+    public function actionBackup() {
         if (\app\components\Backup::createAndSend()) {
             self::addFlash('success', 'Backup sent!');
         }

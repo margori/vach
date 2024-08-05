@@ -5,7 +5,7 @@ use yii\data\ActiveDataProvider;
 use yii\grid\GridView;
 
 ?>
-<h3><?= Yii::t('user', 'Stocks to transfer') ?></h3>
+<h3><?=Yii::t('user', 'Stocks to transfer')?></h3>
 <?php
 $dataProvider = new ActiveDataProvider([
     'query' => $stocks,
@@ -23,7 +23,7 @@ echo GridView::widget([
         ],
         [
             'attribute' => 'quantity',
-            'label' => Yii::t('stock', 'Quantity')
+            'label' => Yii::t('stock', 'Quantity'),
         ],
         [
             'attribute' => 'price',
@@ -41,18 +41,18 @@ echo GridView::widget([
         ],
         [
             'attribute' => 'rate',
-            'label' => Yii::t('payment', 'Rate'),
+            'label' => Yii::t('currency', 'Rate'),
             'value' => function ($data) {
                 return Yii::$app->formatter->asDecimal($data['rate'], 2);
             },
         ],
         [
             'attribute' => 'company_name',
-            'label' => Yii::t('company', 'Company')
+            'label' => Yii::t('company', 'Company'),
         ],
         [
             'attribute' => 'team_name',
-            'label' => Yii::t('team', 'Team')
+            'label' => Yii::t('team', 'Team'),
         ],
         [
             'attribute' => 'created_stamp',

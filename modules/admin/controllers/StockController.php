@@ -3,13 +3,10 @@
 namespace app\modules\admin\controllers;
 
 use app\controllers\SiteController;
-use app\models\Account;
 use app\models\AddModel;
 use app\models\BuyModel;
-use app\models\ClientModel;
-use app\models\LoginModel;
+use app\models\Currency;
 use app\models\Product;
-use app\models\RegisterModel;
 use app\models\RemoveModel;
 use app\models\Stock;
 use app\models\User;
@@ -65,9 +62,15 @@ class StockController extends AdminBaseController {
         if ($model->load(Yii::$app->request->post())) {
             Stock::saveBuyModel($model);
 
-            return $this->render('/payment/redirect', [
-                'model' => $model,
-            ]);
+            if (Yii::$app->params['payu']) {
+                return $this->render('/payment/payu/redirect', [
+                    'model' => $model,
+                ]);
+            } else if (Yii::$app->params['paypal']) {
+                return $this->render('/payment/paypal/handle', [
+                    'model' => $model,
+                ]);
+            }
         }
 
         return $this->render('new', [

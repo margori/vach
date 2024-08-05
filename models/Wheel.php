@@ -150,7 +150,7 @@ class Wheel extends ActiveRecord {
         return [
             self::TYPE_INDIVIDUAL => Yii::t('wheel', 'Individual Wheel'),
             self::TYPE_GROUP => Yii::t('wheel', 'Group Wheel'),
-            self::TYPE_ORGANIZATIONAL => Yii::t('wheel', 'Organizational Wheel '),
+            self::TYPE_ORGANIZATIONAL => Yii::t('wheel', 'Organizational Wheel'),
         ];
     }
 

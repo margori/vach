@@ -1,12 +1,11 @@
 <?php
 
-use yii\helpers\Html;
-use yii\bootstrap\ActiveForm;
 use app\models\Product;
 use app\models\User;
-use yii\web\View;
 use kartik\widgets\Select2;
-use app\models\AddModel;
+use yii\bootstrap\ActiveForm;
+use yii\helpers\Html;
+use yii\web\View;
 
 /* @var $model AddModel */
 
@@ -30,29 +29,28 @@ $distributions = [
 ];
 ?>
 <div class="col-md-12">
-    <h1><?= $this->title ?></h1>
-    <?php
-    $form = ActiveForm::begin([
-                'id' => 'add-form',
-    ]);
-    ?>
-    <?= $form->field($model, 'coach_id')->widget(Select2::classname(), ['data' => User::getUserList(),]) ?>
-    <?= $form->field($model, 'product_id')->dropDownList(Product::getList()) ?>
+    <h1><?=$this->title?></h1>
+    <?php $form = ActiveForm::begin([
+    'id' => 'add-form',
+]);
+?>
+    <?=$form->field($model, 'coach_id')->widget(Select2::classname(), ['data' => User::getUserList()])?>
+    <?=$form->field($model, 'product_id')->dropDownList(Product::getList())?>
     <?=
-    $form->field($model, 'price', ['options' => [
-            'onchange' => "updateAmount();"]
-    ])
-    ?>
-    <?=
-    $form->field($model, 'quantity', ['options' => [
-            'onchange' => "updateAmount();"]
-    ])
-    ?>
-    <?= $form->field($model, 'part_distribution')->dropDownList($distributions) ?>
-    <?= $form->field($model, 'payed')->checkbox() ?>
+$form->field($model, 'price', ['options' => [
+    'onchange' => "updateAmount();"],
+])
+?>
+    <?=$form->field($model, 'rate')?>
+    <?=$form->field($model, 'quantity', ['options' => [
+    'onchange' => "updateAmount();"],
+])
+?>
+    <?=$form->field($model, 'part_distribution')->dropDownList($distributions)?>
+    <?=$form->field($model, 'payed')->checkbox()?>
     <div class="form-group">
-        Total:  <b><span id="total"><?= Yii::$app->formatter->asCurrency($model->price * $model->quantity) ?></span></b><br/><br>
-            <?= Html::submitButton(\Yii::t('app', 'Save'), ['class' => 'btn btn-success', 'name' => 'pay-button']) ?>         
+        Total:  <b><span id="total"><?=Yii::$app->formatter->asCurrency($model->price * $model->quantity)?></span></b>
     </div>
-    <?php ActiveForm::end(); ?>
+    <?=Html::submitButton(\Yii::t('app', 'Save'), ['class' => 'btn btn-success', 'name' => 'pay-button'])?>
+    <?php ActiveForm::end();?>
 </div>

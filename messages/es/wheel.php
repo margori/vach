@@ -60,7 +60,7 @@ return [
     'Observer' => 'Observador',
     'Observer \\ Observed' => 'Observador \\ Observado',
     'Order' => 'Orden',
-    'Organizational Wheel ' => 'Rueda organizacional',
+    'Organizational Wheel' => 'Rueda organizacional',
     'Organizational Wheels' => 'Ruedas organizacionales',
     'Physical Dimension' => 'Dimensión física',
     'Please, click next button to confirm reception of this email:' => 'Por favor, cliquee el siguiente botón para confirmar la recepción de este email:',

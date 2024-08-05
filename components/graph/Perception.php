@@ -4,23 +4,21 @@ namespace app\components\graph;
 
 use app\models\Person;
 use app\models\Team;
-use app\models\TeamType;
 use app\models\Wheel;
-use app\models\WheelQuestion;
 use Yii;
 
 class Perception {
 
     static public function draw($teamId, $memberId, $wheelType) {
         switch ($wheelType) {
-            case Wheel::TYPE_GROUP:
-                $redLine = Wheel::getProjectedGroupWheel($teamId, $memberId);
-                $blueLine = Wheel::getReflectedGroupWheel($teamId, $memberId);
-                break;
-            case Wheel::TYPE_ORGANIZATIONAL:
-                $redLine = Wheel::getProjectedOrganizationalWheel($teamId, $memberId);
-                $blueLine = Wheel::getReflectedOrganizationalWheel($teamId, $memberId);
-                break;
+        case Wheel::TYPE_GROUP:
+            $redLine = Wheel::getProjectedGroupWheel($teamId, $memberId);
+            $blueLine = Wheel::getReflectedGroupWheel($teamId, $memberId);
+            break;
+        case Wheel::TYPE_ORGANIZATIONAL:
+            $redLine = Wheel::getProjectedOrganizationalWheel($teamId, $memberId);
+            $blueLine = Wheel::getReflectedOrganizationalWheel($teamId, $memberId);
+            break;
         }
 
         $team = Team::findOne($teamId);

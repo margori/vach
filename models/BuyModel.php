@@ -38,23 +38,20 @@ class BuyModel extends Model {
     /**
      * @return array customized attribute labels
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'quantity' => Yii::t('stock', 'Quantity to buy'),
             'payerEmail' => Yii::t('stock', 'Sent payment link to this email'),
         ];
     }
 
-    public function getSignature()
-    {
+    public function getSignature() {
         $string = "$this->apiKey~$this->merchantId~$this->referenceCode~$this->amount~$this->currency";
 
         return md5($string);
     }
 
-    public static function fromPayment(Payment $payment)
-    {
+    public static function fromPayment(Payment $payment) {
         $model = new BuyModel([
             'product_id' => $payment->stocks[0]->product_id,
             'quantity' => count($payment->stocks),
@@ -68,8 +65,7 @@ class BuyModel extends Model {
         return $model;
     }
 
-    public static function fromTransaction(Transaction $transaction)
-    {
+    public static function fromTransaction(Transaction $transaction) {
         $payment = $transaction->payment;
 
         $model = new BuyModel([

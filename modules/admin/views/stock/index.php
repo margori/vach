@@ -1,11 +1,11 @@
 <?php
 
-use yii\helpers\Html;
-use yii\helpers\Url;
-use yii\grid\GridView;
-use yii\data\ActiveDataProvider;
 use app\models\Stock;
 use kartik\export\ExportMenu;
+use yii\data\ActiveDataProvider;
+use yii\grid\GridView;
+use yii\helpers\Html;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 $this->title = Yii::t('stock', 'Licences');
@@ -17,18 +17,18 @@ $availableDataProvider = new ActiveDataProvider([
     'pagination' => [
         'pageSize' => 20,
     ],
-        ]);
+]);
 $othersDataProvider = new ActiveDataProvider([
     'query' => $othersModels,
     'pagination' => [
         'pageSize' => 20,
     ],
-        ]);
+]);
 
 $columns = [
     [
         'attribute' => 'coach_name',
-        'label' => Yii::t('app', 'Coach')
+        'label' => Yii::t('app', 'Coach'),
     ],
     [
         'attribute' => 'status',
@@ -39,7 +39,7 @@ $columns = [
     ],
     [
         'attribute' => 'quantity',
-        'label' => Yii::t('stock', 'Quantity')
+        'label' => Yii::t('stock', 'Quantity'),
     ],
     [
         'attribute' => 'price',
@@ -57,7 +57,7 @@ $columns = [
     ],
     [
         'attribute' => 'rate',
-        'label' => Yii::t('payment', 'Rate'),
+        'label' => Yii::t('currency', 'Rate'),
         'value' => function ($data) {
             return Yii::$app->formatter->asDecimal($data['rate'], 2);
         },
@@ -71,11 +71,11 @@ $columns = [
     ],
     [
         'attribute' => 'company_name',
-        'label' => Yii::t('company', 'Company')
+        'label' => Yii::t('company', 'Company'),
     ],
     [
         'attribute' => 'team_name',
-        'label' => Yii::t('team', 'Team')
+        'label' => Yii::t('team', 'Team'),
     ],
     [
         'attribute' => 'created_stamp',
@@ -100,51 +100,51 @@ $columns = [
 ];
 ?>
 <div class="coach-companies">
-    <h1><?= Html::encode($this->title) ?></h1>
+    <h1><?=Html::encode($this->title)?></h1>
     <p>
-        <?= Html::a(Yii::t('stock', 'Add licences'), Url::to(['stock/add']), ['class' => 'btn btn-success']) ?>
-        <?= Html::a(Yii::t('stock', 'Remove licences'), Url::to(['stock/remove']), ['class' => 'btn btn-danger']) ?>
+        <?=Html::a(Yii::t('stock', 'Add licences'), Url::to(['stock/add']), ['class' => 'btn btn-success'])?>
+        <?=Html::a(Yii::t('stock', 'Remove licences'), Url::to(['stock/remove']), ['class' => 'btn btn-danger'])?>
     </p>
-    <h2><?= Yii::t('stock', 'Available licences') ?></h2>
+    <h2><?=Yii::t('stock', 'Available licences')?></h2>
     <?=
-    ExportMenu::widget([
-        'dataProvider' => $availableDataProvider,
-        'columns' => $columns,
-        'exportConfig' => [
-            ExportMenu::FORMAT_PDF => false,
-        ],
-        'fontAwesome' => true,
-        'dropdownOptions' => [
-            'label' => 'Export All',
-            'class' => 'btn btn-default'
-        ]
-    ])
-    ?>
+ExportMenu::widget([
+    'dataProvider' => $availableDataProvider,
+    'columns' => $columns,
+    'exportConfig' => [
+        ExportMenu::FORMAT_PDF => false,
+    ],
+    'fontAwesome' => true,
+    'dropdownOptions' => [
+        'label' => 'Export All',
+        'class' => 'btn btn-default',
+    ],
+])
+?>
     <?=
-    GridView::widget([
-        'dataProvider' => $availableDataProvider,
-        'columns' => $columns,
-    ]);
-    ?>
-    <h2><?= Yii::t('stock', 'Not available licences') ?></h2>
+GridView::widget([
+    'dataProvider' => $availableDataProvider,
+    'columns' => $columns,
+]);
+?>
+    <h2><?=Yii::t('stock', 'Not available licences')?></h2>
     <?=
-    ExportMenu::widget([
-        'dataProvider' => $othersDataProvider,
-        'columns' => $columns,
-        'exportConfig' => [
-            ExportMenu::FORMAT_PDF => false,
-        ],
-        'fontAwesome' => true,
-        'dropdownOptions' => [
-            'label' => 'Export All',
-            'class' => 'btn btn-default'
-        ]
-    ])
-    ?>
+ExportMenu::widget([
+    'dataProvider' => $othersDataProvider,
+    'columns' => $columns,
+    'exportConfig' => [
+        ExportMenu::FORMAT_PDF => false,
+    ],
+    'fontAwesome' => true,
+    'dropdownOptions' => [
+        'label' => 'Export All',
+        'class' => 'btn btn-default',
+    ],
+])
+?>
     <?=
-    GridView::widget([
-        'dataProvider' => $othersDataProvider,
-        'columns' => $columns,
-    ]);
-    ?>
+GridView::widget([
+    'dataProvider' => $othersDataProvider,
+    'columns' => $columns,
+]);
+?>
 </div>
