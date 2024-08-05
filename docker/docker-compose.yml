@@ -1,4 +1,3 @@
-version: '3.6'
 services:
   vach:
     container_name: vach-web
@@ -43,7 +42,7 @@ services:
 
   vach-selenium:
     container_name: vach-selenium
-    image: selenium/standalone-chrome:108.0
+    image: selenium/standalone-chromium
     ports:
       - '10186:4444'
       - '10187:5900'
@@ -54,7 +53,7 @@ services:
     container_name: vach-mail
     image: maildev/maildev
     ports:
-      - '10188:80'
+      - '10188:1080'
     networks:
       - vach-net
 
