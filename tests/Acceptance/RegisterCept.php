@@ -7,6 +7,10 @@ $I->wantTo('ensure that register works');
 $I->amOnPage(Yii::$app->homeUrl);
 
 if (Yii::$app->params['allow_register']) {
+    $email = 'jhon@dow.com';
+    $username = 'jhon.dow';
+    $password = '12345678';
+
     $I->click('Crear cuenta');
     $I->wait(1);
 
@@ -14,11 +18,19 @@ if (Yii::$app->params['allow_register']) {
 
     $I->fillField('User[name]', 'Jhon');
     $I->fillField('User[surname]', 'Dow');
-    $I->fillField('User[email]', 'jhon@dow.com');
-    $I->fillField('User[username]', 'jhon.dow');
-    $I->fillField('User[password]', '12345678');
+    $I->fillField('User[email]', $email);
+    $I->fillField('User[username]', $username);
+    $I->fillField('User[password]', $password);
     $I->fillField('User[password_confirm]', '12345678');
     $I->click('Crear');
+    $I->wait(1);
+
+    $I->see('(jhon.dow)');
+
+    $I->logout();
+    $I->see('Nombre usuario');
+
+    $I->login($username, $password);
     $I->wait(1);
 
     $I->see('(jhon.dow)');
