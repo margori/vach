@@ -9,10 +9,9 @@ use yii\base\Model;
  * This is the model class for table "article".
  *
  * @property double $amount
- * 
+ *
  */
-class AddModel extends Model
-{
+class AddModel extends Model {
 
     public $product_id;
     public $quantity;
@@ -20,17 +19,18 @@ class AddModel extends Model
     public $coach_id;
     public $part_distribution;
     public $payed;
+    public $rate;
 
     /**
      * @return array the validation rules.
      */
-    public function rules()
-    {
+    public function rules() {
         return [
             // username and password are both required
             [['product_id', 'quantity', 'price', 'coach_id', 'part_distribution'], 'required'],
             ['quantity', 'number', 'min' => 1, 'max' => 100],
             ['amount', 'number', 'min' => 0, 'max' => 100000],
+            ['rate', 'number', 'min' => 0, 'max' => 100000],
             ['payed', 'boolean'],
         ];
     }
@@ -38,8 +38,7 @@ class AddModel extends Model
     /**
      * @return array customized attribute labels
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'price' => Yii::t('stock', 'Price in USD $'),
             'quantity' => Yii::t('stock', 'Quantity'),
@@ -48,16 +47,15 @@ class AddModel extends Model
             'product_id' => Yii::t('app', 'Product'),
             'product' => Yii::t('app', 'Product'),
             'payed' => Yii::t('stock', 'Payed'),
+            'rate' => Yii::t('currency', 'Rate'),
         ];
     }
 
-    public function getCoach()
-    {
+    public function getCoach() {
         return User::findOne(['id' => $this->coach_id]);
     }
 
-    public function getProduct()
-    {
+    public function getProduct() {
         return Product::findOne(['id' => $this->product_id]);
     }
 

@@ -11,54 +11,21 @@ use yii\base\Model;
  * @property double $amount
  *
  */
-class BuyModel extends Model
-{
+class BuyModel extends Model {
     public $product_id;
     public $quantity;
     public $price;
-
-    public $merchantId;
-    public $accountId;
-    public $apiKey;
-    public $description;
-    public $referenceCode;
-    public $amount;
-    public $tax;
-    public $taxReturnBase;
-    public $currency;
-    public $test;
     public $buyerEmail;
+    public $description;
+    public $amount;
+    public $referenceCode;
+    public $currency;
     public $payerEmail;
-
-    public $actionUrl;
-    public $responseUrl;
-    public $confirmationUrl;
-
-    public function init()
-    {
-        $this->merchantId = Yii::$app->params['payu_merchant_id'];
-        $this->accountId = Yii::$app->params['payu_account_id'];
-        $this->apiKey = Yii::$app->params['payu_api_key'];
-
-        $this->description = Yii::t('payment', 'VACH');
-
-        $this->tax = Yii::$app->params['payu_tax'];
-        $this->taxReturnBase = Yii::$app->params['payu_tax_return_base'];
-        $this->currency = Yii::$app->params['payu_currency'];
-        $this->test = Yii::$app->params['payu_test'];
-
-        $this->actionUrl = Yii::$app->params['payu_action_url'];
-        $this->responseUrl = Yii::$app->params['payu_response_url'];
-        $this->confirmationUrl = Yii::$app->params['payu_confirmation_url'];
-
-        return parent::init();
-    }
 
     /**
      * @return array the validation rules.
      */
-    public function rules()
-    {
+    public function rules() {
         return [
             // username and password are both required
             [['amount', 'uuid'], 'required'],

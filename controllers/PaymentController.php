@@ -2,16 +2,15 @@
 
 namespace app\controllers;
 
-use app\models\Account;
 use app\models\BuyModel;
-use app\models\ClientModel;
-use app\models\LoginModel;
 use app\models\Payment;
-use app\models\RegisterModel;
 use app\models\Stock;
 use app\models\Transaction;
 use app\models\User;
+use Exception;
 use Yii;
+use yii\httpclient\Client;
+use yii\web\Response;
 
 class PaymentController extends BaseController {
     public $layout = 'inner';
@@ -89,10 +88,10 @@ class PaymentController extends BaseController {
 
         if ($payment->status != Payment::STATUS_PENDING) {
             switch ($payment->status) {
-                case Payment::STATUS_PAID:
-                    return $this->render('response_success');
-                default:
-                    return $this->render('response_declined');
+            case Payment::STATUS_PAID:
+                return $this->render('response_success');
+            default:
+                return $this->render('response_declined');
             }
         }
 
@@ -100,9 +99,16 @@ class PaymentController extends BaseController {
 
         $buyModel = BuyModel::fromTransaction($transaction);
 
-        return $this->render('/payment/redirect', [
-            'model' => $buyModel,
-        ]);
+        if (isset(Yii::$app->params['payu'])) {
+            echo "s";
+            return $this->render('/payment/payu/redirect', [
+                'buyModel' => $buyModel,
+            ]);
+        } else if (isset(Yii::$app->params['paypal'])) {
+            return $this->render('/payment/paypal/index', [
+                'buyModel' => $buyModel,
+            ]);
+        }
     }
 
     public function actionResponse() {
@@ -115,51 +121,170 @@ class PaymentController extends BaseController {
 
         $responses = [
             'APPROVED' => [
-                Payment:: STATUS_PENDING => 'wait',
-                Payment:: STATUS_PAID => 'success',
-                Payment:: STATUS_REJECTED => 'wait',
-                Payment:: STATUS_ERROR => 'wait',
+                Payment::STATUS_PENDING => 'wait',
+                Payment::STATUS_PAID => 'success',
+                Payment::STATUS_REJECTED => 'wait',
+                Payment::STATUS_ERROR => 'wait',
             ],
             'DECLINED' => [
-                Payment:: STATUS_PENDING => 'declined',
-                Payment:: STATUS_PAID => 'error',
-                Payment:: STATUS_REJECTED => 'error',
-                Payment:: STATUS_ERROR => 'declined',
+                Payment::STATUS_PENDING => 'declined',
+                Payment::STATUS_PAID => 'error',
+                Payment::STATUS_REJECTED => 'error',
+                Payment::STATUS_ERROR => 'declined',
             ],
             'EXPIRED' => [
-                Payment:: STATUS_PENDING => 'declined',
-                Payment:: STATUS_PAID => 'error',
-                Payment:: STATUS_REJECTED => 'error',
-                Payment:: STATUS_ERROR => 'declined',
+                Payment::STATUS_PENDING => 'declined',
+                Payment::STATUS_PAID => 'error',
+                Payment::STATUS_REJECTED => 'error',
+                Payment::STATUS_ERROR => 'declined',
             ],
             'PENDING' => [
-                Payment:: STATUS_PENDING => 'pending',
-                Payment:: STATUS_PAID => 'error',
-                Payment:: STATUS_REJECTED => 'pending',
-                Payment:: STATUS_ERROR => 'pending',
+                Payment::STATUS_PENDING => 'pending',
+                Payment::STATUS_PAID => 'error',
+                Payment::STATUS_REJECTED => 'pending',
+                Payment::STATUS_ERROR => 'pending',
             ],
             'ERROR' => [
-                Payment:: STATUS_PENDING => 'error',
-                Payment:: STATUS_PAID => 'error',
-                Payment:: STATUS_REJECTED => 'error',
-                Payment:: STATUS_ERROR => 'error',
-            ]
+                Payment::STATUS_PENDING => 'error',
+                Payment::STATUS_PAID => 'error',
+                Payment::STATUS_REJECTED => 'error',
+                Payment::STATUS_ERROR => 'error',
+            ],
         ];
 
         switch ($responses[$lapTransactionState][$model->status]) {
-            case 'success':
-                return $this->render('response_success');
-            case 'wait':
-                return $this->render('response_wait');
-            case 'pending':
-                return $this->render('response_pending');
-            case 'declined':
-                return $this->render('response_declined');
-            default:
-                $this->notifyError($referenceCode);
-                return $this->render('response_error');
+        case 'success':
+            return $this->render('response_success');
+        case 'wait':
+            return $this->render('response_wait');
+        case 'pending':
+            return $this->render('response_pending');
+        case 'declined':
+            return $this->render('response_declined');
+        default:
+            $this->notifyError($referenceCode);
+            return $this->render('response_error');
         }
     }
+
+    // PAYPAL
+
+    public function actionCreateOrder($referenceCode) {
+        $client = new Client();
+        $paypalUrl = Yii::$app->params['paypal']['base_Url'];
+        $transaction = Transaction::findOne(['uuid' => $referenceCode]);
+
+        if (!$transaction) {
+            Yii::$app->response->statusCode = 404;
+            return 'Not found';
+        }
+
+        $accessToken = $this->generateAccessToken();
+
+        $payload = [
+            "intent" => "CAPTURE",
+            "purchase_units" => [
+                [
+                    "reference_id" => $referenceCode,
+                    "amount" => [
+                        "currency_code" => $transaction->currency,
+                        "value" => $transaction->amount,
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $client->createRequest()
+            ->setFormat(Client::FORMAT_JSON)
+            ->setMethod('post')
+            ->setUrl($paypalUrl . '/v2/checkout/orders')
+            ->setHeaders([
+                "Authorization" => 'Bearer ' . $accessToken,
+                "Content-Type" => 'application/json',
+                // "PayPal-Mock-Response": '{"mock_application_codes": "MISSING_REQUIRED_PARAMETER"}'
+                // "PayPal-Mock-Response": '{"mock_application_codes": "PERMISSION_DENIED"}'
+                // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+            ])
+
+            ->setContent(json_encode($payload))
+            ->send();
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        Yii::debug($response->data);
+
+        $transaction->external_id = $response->data['id'];
+        $transaction->save();
+        return $response->data;
+    }
+
+    public function actionCaptureOrder($orderId) {
+        $client = new Client();
+        $paypalUrl = Yii::$app->params['paypal']['base_Url'];
+        $transaction = Transaction::findOne(['external_id' => $orderId]);
+
+        if (!$transaction) {
+            Yii::$app->response->statusCode = 404;
+            return 'Not found';
+        }
+
+        $accessToken = $this->generateAccessToken();
+
+        $response = $client->createRequest()
+            ->setFormat(Client::FORMAT_JSON)
+            ->setMethod('post')
+            ->setUrl("$paypalUrl/v2/checkout/orders/$orderId/capture")
+            ->setHeaders([
+                "Authorization" => 'Bearer ' . $accessToken,
+                "Content-Type" => 'application/json',
+                // "PayPal-Mock-Response": '{"mock_application_codes": "MISSING_REQUIRED_PARAMETER"}'
+                // "PayPal-Mock-Response": '{"mock_application_codes": "PERMISSION_DENIED"}'
+                // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+            ])
+            ->send();
+        Yii::debug($response);
+
+        if (!$response->isOk) {
+            throw new Exception("Error: fail to capture payment in PayPal");
+        }
+
+        $this->setTransactionPayed($transaction);
+
+        return "OK";
+    }
+
+    private function generateAccessToken() {
+        $PAYPAL_CLIENT_ID = Yii::$app->params['paypal']['CLIENT_ID'];
+        $PAYPAL_CLIENT_SECRET = Yii::$app->params['paypal']['CLIENT_SECRET'];
+
+        if (!$PAYPAL_CLIENT_ID || !$PAYPAL_CLIENT_SECRET) {
+            throw new Exception("MISSING_PAYPAL_CREDENTIALS");
+        }
+
+        $auth = base64_encode($PAYPAL_CLIENT_ID . ":" . $PAYPAL_CLIENT_SECRET);
+
+        $client = new Client();
+
+        $paypalUrl = Yii::$app->params['paypal']['base_Url'];
+
+        $response = $client->createRequest()
+            ->setMethod('post')
+            ->setUrl($paypalUrl . '/v1/oauth2/token')
+            ->setHeaders([
+                "Authorization" => 'Basic ' . $auth,
+                "Content-Type" => 'application/x-www-form-urlencoded',
+            ])
+            ->setContent('grant_type=client_credentials')
+            ->send();
+
+        if (!$response->isOk) {
+            throw new Exception("Error: fail to get access token from PayPal");
+        }
+
+        $accessToken = $response->data['access_token'];
+        return $accessToken;
+    }
+
+    // PAYU
 
     public function actionConfirmation() {
         try {
@@ -171,70 +296,83 @@ class PaymentController extends BaseController {
                 return 'OK';
             }
 
-            $payment = $transaction->payment;
-            $stocks = $payment->stocks;
-
             $transaction->external_id = Yii::$app->request->post('reference_pol');
             $transaction->external_data = serialize($_POST);
 
             $state_pol = Yii::$app->request->post('state_pol');
 
             switch ($state_pol) {
-                case 4:
-                    $transaction->status = Payment::STATUS_PAID;
-                    $transaction->rate = Yii::$app->request->post('exchange_rate');
-                    $transaction->commision = Yii::$app->request->post('commision_pol');
-                    $transaction->commision_currency = Yii::$app->request->post('commision_pol_currency');
-                    $transaction->save();
+            case 4:
+                $this->setTransactionPayed($transaction);
+                break;
+            case 7:
+                $transaction->status = Payment::STATUS_PENDING;
+                $transaction->save();
+                break;
+            case 5:
+            case 6:
+                $transaction->status = Payment::STATUS_REJECTED;
+                $transaction->save();
 
-                    $payment->status = Payment::STATUS_PAID;
-                    $payment->rate = Yii::$app->request->post('exchange_rate');
-                    $payment->commision = Yii::$app->request->post('commision_pol');
-                    $payment->commision_currency = Yii::$app->request->post('commision_pol_currency');
+                $payment = $transaction->payment;
+                $stocks = $payment->stocks;
+
+                foreach ($stocks as $stock) {
+                    $stock->status = Stock::STATUS_INVALID;
+                    $stock->save();
+                }
+                break;
+            default:
+                if ($transaction->status != Payment::STATUS_PAID) {
+                    $transaction->status = Payment::STATUS_ERROR;
+                    $transaction->save();
+                }
+
+                $payment = $transaction->payment;
+                $stocks = $payment->stocks;
+
+                if ($payment->status != Payment::STATUS_PAID) {
+                    $payment->status = Payment::STATUS_ERROR;
                     $payment->save();
-
                     foreach ($stocks as $stock) {
-                        $stock->status = Stock::STATUS_VALID;
+                        $stock->status = Stock::STATUS_ERROR;
                         $stock->save();
                     }
-
-                    $this->notifyPayed($referenceCode);
-                    break;
-                case 7:
-                    $transaction->status = Payment::STATUS_PENDING;
-                    $transaction->save();
-                    break;
-                case 5:
-                case 6:
-                    $transaction->status = Payment::STATUS_REJECTED;
-                    $transaction->save();
-
-                    foreach ($stocks as $stock) {
-                        $stock->status = Stock::STATUS_INVALID;
-                        $stock->save();
-                    }
-                    break;
-                default:
-                    if ($transaction->status != Payment::STATUS_PAID) {
-                        $transaction->status = Payment::STATUS_ERROR;
-                        $transaction->save();
-                    }
-
-                    if ($payment->status != Payment::STATUS_PAID) {
-                        $payment->status = Payment::STATUS_ERROR;
-                        $payment->save();
-                        foreach ($stocks as $stock) {
-                            $stock->status = Stock::STATUS_ERROR;
-                            $stock->save();
-                        }
-                    }
-                    break;
+                }
+                break;
             }
         } catch (Exception $e) {
 
         }
 
         return 'OK';
+    }
+
+    private function setTransactionPayed($transaction) {
+        $payment = $transaction->payment;
+        $stocks = $payment->stocks;
+
+        $transaction->status = Payment::STATUS_PAID;
+        $transaction->rate = Yii::$app->request->post('exchange_rate') ?? 0;
+        $transaction->commision = Yii::$app->request->post('commision_pol') ?? 0;
+        $transaction->commision_currency = Yii::$app->request->post('commision_pol_currency') ?? "";
+        if (!$transaction->save()) {
+            Yii::debug($transaction->getErrorSummary(false));
+            throw new Exception("Fail to save transaction");
+        };
+
+        $payment->status = Payment::STATUS_PAID;
+        $payment->rate = Yii::$app->request->post('exchange_rate') ?? 0;
+        $payment->commision = Yii::$app->request->post('commision_pol') ?? 0;
+        $payment->commision_currency = Yii::$app->request->post('commision_pol_currency') ?? "";
+        $payment->save();
+
+        foreach ($stocks as $stock) {
+            $stock->status = Stock::STATUS_VALID;
+            $stock->save();
+        }
+
+        $this->notifyPayed($transaction->uuid);
     }
 
     private function notifyError($referenceCode) {
