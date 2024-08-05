@@ -86,6 +86,7 @@ function getCellHtml($value)
 }
 ?>
 <div id="div<?= $token ?>" class="row col-md-12">
+  <h3><?= Yii::t('dashboard', 'Relation Matrix') ?></h3>
   <table class="table table-bordered table-hover">
     <tr>
       <td>
