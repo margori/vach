@@ -180,7 +180,7 @@ class Stock extends ActiveRecord {
 
         $payment = new Payment();
         $payment->coach_id = Yii::$app->user->id;
-        $payment->concept = $model->quantity . ' ' . $product->name;
+        $payment->concept = $product->name;
         $payment->currency = 'USD';
         $payment->amount = $model->quantity * $model->price;
         $payment->rate = 0;

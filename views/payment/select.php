@@ -30,7 +30,8 @@ $form = ActiveForm::begin([
         </div>
         <div class="clearfix"></div>
         <div class="col-sm-push-4 col-sm-4">
-            <?=Html::submitButton(\Yii::t('stock', 'Begin payment'), ['class' => 'btn btn-lg btn-success', 'name' => 'pay-button'])?>
+            <?=Html::submitButton(\Yii::t('stock', 'Begin payment'),
+    ['class' => 'btn btn-lg btn-success', 'name' => 'selection-button', 'value' => 'checkout'])?>
         </div>
         <div class="clearfix"></div>
         <?php if (Yii::$app->params['allow_3rd_party_payment']) {?>
@@ -42,7 +43,8 @@ $form = ActiveForm::begin([
         <div class="clearfix"></div>
         <div class="col-sm-push-4 col-sm-4">
             <?=$form->field($model, 'payerEmail')?>
-            <?=Html::submitButton(\Yii::t('stock', 'Send payment link'), ['class' => 'btn btn-primary', 'name' => 'pay-button', 'value' => 'send'])?>
+            <?=Html::submitButton(\Yii::t('stock', 'Send payment link'),
+    ['class' => 'btn btn-primary', 'name' => 'selection-button', 'value' => 'send'])?>
         </div>
         <div class="clearfix"></div>
         <?php }?>

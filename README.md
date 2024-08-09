@@ -20,6 +20,13 @@ Expected column header in file 1, user's data from line 2.
 
 ## Util terminal commands
 
+Extract messages for locales
+
+```
+$ docker exec -ti vach-web bash
+$ ./yii message/extract config/message.php
+```
+
 Mysql restore db dump:
 
 ```

@@ -24,6 +24,7 @@ return [
     'Commision currency' => 'Moneda de comisión',
     'Create liquidation' => 'Crear liquidación',
     'Currency' => 'Moneda',
+    'Invoice link successfully sent!' => '¡Factura enviada exitosamente!',
     'Is manual' => 'Es manual',
     'Liquidation' => 'Liquidación',
     'Liquidations' => 'Liquidaciones',

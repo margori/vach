@@ -39,6 +39,7 @@ return [
     'paypal' => [
         "CLIENT_ID" => "**************",
         "CLIENT_SECRET" => "**************",
-        "base_Url" => "https://api-m.sandbox.paypal.com",
+        "api_url" => "https://api-m.sandbox.paypal.com",
+        "web_url" => "https://www.sandbox.paypal.com",
     ],
 ];

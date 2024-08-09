@@ -17,7 +17,9 @@ class PaymentController extends BaseController {
     public $enableCsrfValidation = false;
 
     public function beforeAction($action) {
-        if ($action->id == 'confirmation' || $action->id == 'response' || $action->id == 'init') {
+        if ($action->id == 'confirmation'
+            || $action->id == 'response'
+            || $action->id == 'init') {
             return true;
         }
         return parent::beforeAction($action);
@@ -48,33 +50,41 @@ class PaymentController extends BaseController {
 
         $model = BuyModel::fromPayment($payment);
 
-        $action = Yii::$app->request->post('pay-button');
+        $action = Yii::$app->request->post('selection-button');
         if ($model->load(Yii::$app->request->post())) {
-            if ($action == 'send' && !$model->payerEmail) {
-                $model->addError('payerEmail', \Yii::t('stock', 'Email required to send link'));
+            if ($action == 'send') {
+                return $this->sendThirdParty($model, $payment->coach->email);
             } else {
-                $paymentLink = Yii::$app->urlManager->createAbsoluteUrl(['payment/init', 'referenceCode' => $model->referenceCode]);
-
-                if ($action == 'send') {
-                    Yii::$app->mailer->compose('payment_send', [
-                        'paymentLink' => $paymentLink,
-                    ])
-                        ->setSubject(\Yii::t('stock', Yii::$app->params['app']['name'] . ': licences payment link'))
-                        ->setFrom(Yii::$app->params['senderEmail'])
-                        ->setTo($model->payerEmail)
-                        ->setCc($payment->coach->email)
-                        ->send();
-
-                    return $this->redirect(['/payment/sent']);
-                } else {
-                    return $this->redirect($paymentLink);
-                }
+                return $this->redirect(['payment/init', 'referenceCode' => $model->referenceCode]);
             }
         }
 
         return $this->render('select', [
             'model' => $model,
         ]);
+    }
+
+    private function sendThirdParty($model, $email) {
+        if (!$model->payerEmail) {
+            $model->addError('payerEmail', \Yii::t('stock', 'Email required to send link'));
+
+            return $this->render('select', [
+                'model' => $model,
+            ]);
+        } else {
+            $paymentLink = Yii::$app->urlManager->createAbsoluteUrl(['payment/init', 'referenceCode' => $model->referenceCode]);
+
+            Yii::$app->mailer->compose('payment_send', [
+                'paymentLink' => $paymentLink,
+            ])
+                ->setSubject(\Yii::t('stock', Yii::$app->params['app']['name'] . ': licences payment link'))
+                ->setFrom(Yii::$app->params['senderEmail'])
+                ->setTo($model->payerEmail)
+                ->setCc($email)
+                ->send();
+
+            return $this->redirect(['/payment/sent']);
+        }
     }
 
     public function actionInit($referenceCode) {
@@ -154,7 +164,9 @@ class PaymentController extends BaseController {
 
         switch ($responses[$lapTransactionState][$model->status]) {
         case 'success':
-            return $this->render('response_success');
+            return $this->render('response_success', [
+                'referenceCode' => $referenceCode,
+            ]);
         case 'wait':
             return $this->render('response_wait');
         case 'pending':
@@ -169,9 +181,154 @@ class PaymentController extends BaseController {
 
     // PAYPAL
 
+    public function actionInvoice($referenceCode) {
+        $client = new Client();
+        $paypalApiUrl = Yii::$app->params['paypal']['api_url'];
+
+        $transaction = Transaction::findOne(['uuid' => $referenceCode]);
+
+        if (!$transaction) {
+            return $this->goHome();
+        }
+        if ($transaction->status != Payment::STATUS_PAID) {
+            return $this->goHome();
+        }
+
+        $accessToken = $this->generateAccessToken();
+        $payment = $transaction->payment;
+
+        // create invoice
+        $invoicer = Yii::$app->params['invoicer'];
+        $logo = Yii::$app->urlManager->hostInfo . Yii::getAlias('@web/images/logo.png');
+        $coach = $transaction->payment->coach;
+        $quantity = Stock::find()
+            ->where(['payment_id' => $payment->id])
+            ->count();
+        $price = $transaction->amount / $quantity;
+
+        $invoicePayload = [
+            "detail" => [
+                "currency_code" => $transaction->currency,
+                "reference" => $transaction->uuid,
+            ],
+            "invoicer" => [
+                "name" => [
+                    "given_name" => $invoicer['name'],
+                    "surname" => $invoicer['surname'],
+                ],
+                "address" => [
+                    "address_line_1" => $invoicer['address_line_1'],
+                    "address_line_2" => $invoicer['address_line_2'],
+                    "admin_area_1" => $invoicer['admin_area_1'],
+                    "admin_area_2" => $invoicer['admin_area_2'],
+                    "postal_code" => $invoicer['postal_code'],
+                    "country_code" => $invoicer['country_code'],
+                ],
+                //"logo_url" => $logo,
+            ],
+            "primary_recipients" => [
+                [
+                    "billing_info" => [
+                        "name" => [
+                            "given_name" => $coach->name,
+                            "surname" => $coach->surname,
+                        ],
+                        "email_address" => $coach->email,
+                    ],
+                ],
+            ],
+            "items" => [
+                [
+                    "name" => $payment->concept,
+                    "quantity" => $quantity,
+                    "unit_amount" => [
+                        "currency_code" => $transaction->currency,
+                        "value" => $price,
+                    ],
+                ],
+            ],
+        ];
+
+        Yii::debug($invoicePayload);
+
+        $response = $client->createRequest()
+            ->setFormat(Client::FORMAT_JSON)
+            ->setMethod('post')
+            ->setUrl($paypalApiUrl . '/v2/invoicing/invoices')
+            ->setHeaders([
+                "Authorization" => 'Bearer ' . $accessToken,
+                "Content-Type" => 'application/json',
+                // "PayPal-Mock-Response": '{"mock_application_codes": "MISSING_REQUIRED_PARAMETER"}'
+                // "PayPal-Mock-Response": '{"mock_application_codes": "PERMISSION_DENIED"}'
+                // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+            ])
+            ->setContent(json_encode($invoicePayload))
+            ->send();
+
+        Yii::debug($response->data);
+
+        $invoiceUrl = $response->data['href'];
+        $invoiceUrlParts = explode("/", $invoiceUrl);
+        $invoiceId = end($invoiceUrlParts);
+        $transaction->external_id = $invoiceId;
+        $transaction->save();
+
+        // send invoice
+        // $sendInvoicePayload = [
+        //     "send_to_recipient" => false,
+        //     "send_to_invoicer" => false
+        // ];
+
+        // $response = $client->createRequest()
+        //     ->setFormat(Client::FORMAT_JSON)
+        //     ->setMethod('post')
+        //     ->setUrl($paypalApiUrl . "/v2/invoicing/invoices/$invoiceId/send")
+        //     ->setHeaders([
+        //         "Authorization" => 'Bearer ' . $accessToken,
+        //         "Content-Type" => 'application/json',
+        //         // "PayPal-Mock-Response": '{"mock_application_codes": "MISSING_REQUIRED_PARAMETER"}'
+        //         // "PayPal-Mock-Response": '{"mock_application_codes": "PERMISSION_DENIED"}'
+        //         // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+        //     ])
+        //     ->setContent(json_encode($sendInvoicePayload))
+        //     ->send();
+        // Yii::debug($response->data);
+
+        // mark invoice as payed
+        $today = (new \DateTime('today'))->format('Y-m-d');
+        $paymentPayload = [
+            "method" => "PAYPAL",
+            "payment_date" => $today,
+            "amount" => [
+                "currency_code" => $transaction->currency,
+                "value" => $price,
+            ],
+        ];
+        Yii::debug($paymentPayload);
+
+        $response = $client->createRequest()
+            ->setFormat(Client::FORMAT_JSON)
+            ->setMethod('post')
+            ->setUrl($paypalApiUrl . "/v2/invoicing/invoices/$invoiceId/payments")
+            ->setHeaders([
+                "Authorization" => 'Bearer ' . $accessToken,
+                "Content-Type" => 'application/json',
+                // "PayPal-Mock-Response": '{"mock_application_codes": "MISSING_REQUIRED_PARAMETER"}'
+                // "PayPal-Mock-Response": '{"mock_application_codes": "PERMISSION_DENIED"}'
+                // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+            ])
+            ->setContent(json_encode($paymentPayload))
+            ->send();
+        Yii::debug($response->data);
+
+        $paypalWebUrl = Yii::$app->params['paypal']['web_url'];
+        $redirectUrl = $paypalWebUrl . "/invoice/p/#$invoiceId";
+        return $this->redirect($redirectUrl);
+    }
+
     public function actionCreateOrder($referenceCode) {
         $client = new Client();
-        $paypalUrl = Yii::$app->params['paypal']['base_Url'];
+        $paypalApiUrl = Yii::$app->params['paypal']['api_url'];
         $transaction = Transaction::findOne(['uuid' => $referenceCode]);
 
         if (!$transaction) {
@@ -197,7 +354,7 @@ class PaymentController extends BaseController {
         $response = $client->createRequest()
             ->setFormat(Client::FORMAT_JSON)
             ->setMethod('post')
-            ->setUrl($paypalUrl . '/v2/checkout/orders')
+            ->setUrl($paypalApiUrl . '/v2/checkout/orders')
             ->setHeaders([
                 "Authorization" => 'Bearer ' . $accessToken,
                 "Content-Type" => 'application/json',
@@ -219,7 +376,7 @@ class PaymentController extends BaseController {
 
     public function actionCaptureOrder($orderId) {
         $client = new Client();
-        $paypalUrl = Yii::$app->params['paypal']['base_Url'];
+        $paypalApiUrl = Yii::$app->params['paypal']['api_url'];
         $transaction = Transaction::findOne(['external_id' => $orderId]);
 
         if (!$transaction) {
@@ -232,7 +389,7 @@ class PaymentController extends BaseController {
         $response = $client->createRequest()
             ->setFormat(Client::FORMAT_JSON)
             ->setMethod('post')
-            ->setUrl("$paypalUrl/v2/checkout/orders/$orderId/capture")
+            ->setUrl("$paypalApiUrl/v2/checkout/orders/$orderId/capture")
             ->setHeaders([
                 "Authorization" => 'Bearer ' . $accessToken,
                 "Content-Type" => 'application/json',
@@ -264,11 +421,11 @@ class PaymentController extends BaseController {
 
         $client = new Client();
 
-        $paypalUrl = Yii::$app->params['paypal']['base_Url'];
+        $paypalApiUrl = Yii::$app->params['paypal']['api_url'];
 
         $response = $client->createRequest()
             ->setMethod('post')
-            ->setUrl($paypalUrl . '/v1/oauth2/token')
+            ->setUrl($paypalApiUrl . '/v1/oauth2/token')
             ->setHeaders([
                 "Authorization" => 'Basic ' . $auth,
                 "Content-Type" => 'application/x-www-form-urlencoded',

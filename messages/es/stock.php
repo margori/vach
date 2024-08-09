@@ -28,6 +28,8 @@ return [
     'Dear administrator, I\'m requesting {q} licences. Thanks.' => 'Estimado administrador, estoy solicitando {q} licencias. Gracias.',
     'Edit Licence Type' => 'Editar tipo de licencia',
     'Email required to send link' => 'Correo electrónica requerido para enviar link',
+    'Get invoice' => 'Descargar factura',
+    'Go to Invoice' => 'Ir a factura',
     'Go to My Licences' => 'Ir a Mis licencias',
     'Licence Type' => 'Tipo de licencia',
     'Licence Types' => 'Tipos de licencias',
